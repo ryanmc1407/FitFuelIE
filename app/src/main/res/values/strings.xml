@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <resources>
     <string name="app_name">FitFuel IE</string>
     <string name="app_description">Nutrition &amp; Training Tracker for GAA Athletes</string>
@@ -58,3 +59,9 @@
     <string name="empty_training">No training sessions for this date.\nTap the + button to schedule your first session!</string>
     <string name="empty_grocery">Your grocery list is empty.\nTap the + button to add your first item!</string>
 </resources>
+=======
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">FitFuel IE</string>
+</resources>
+>>>>>>> 327fbe68a7604cec06676b7e0fb4b0bf92ba2aeb
