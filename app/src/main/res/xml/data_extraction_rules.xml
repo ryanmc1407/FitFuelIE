@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<data-extraction-rules>
+    <cloud-backup>
+        <!-- Include the Room database in cloud backups -->
+        <include domain="database" path="fitfuel_database" />
+    </cloud-backup>
+    <device-transfer>
+        <!-- Include the Room database in device transfers -->
+        <include domain="database" path="fitfuel_database" />
+    </device-transfer>
+</data-extraction-rules>
