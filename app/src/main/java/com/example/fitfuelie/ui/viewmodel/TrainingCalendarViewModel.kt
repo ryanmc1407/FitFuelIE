@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 import java.util.*
 import javax.inject.Inject
 
+
+
 class TrainingCalendarViewModel(
     private val trainingRepository: TrainingSessionRepository
 ) : ViewModel() {
