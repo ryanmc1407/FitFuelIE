@@ -2,20 +2,18 @@ package com.fitfuelie.app.ui.mealplanner
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.Meal
 import com.fitfuelie.app.data.model.MealType
 import com.fitfuelie.app.data.repository.MealRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import javax.inject.Inject
 
-@HiltViewModel
-class MealPlannerViewModel @Inject constructor(
+class MealPlannerViewModel(
     private val mealRepository: MealRepository
 ) : ViewModel() {
 

@@ -12,20 +12,27 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.TrainingSession
 import com.fitfuelie.app.data.model.TrainingType
 import com.fitfuelie.app.data.model.TrainingIntensity
+import com.fitfuelie.app.data.repository.TrainingSessionRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun TrainingCalendarScreen(
-    viewModel: TrainingViewModel = hiltViewModel()
-) {
+fun TrainingCalendarScreen() {
+    val context = LocalContext.current
+    val viewModel: TrainingViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = TrainingSessionRepository(database.trainingSessionDao())
+        TrainingViewModel(repository)
+    }
     val selectedDate by viewModel.selectedDate.collectAsState()
     val trainingSessions by viewModel.trainingSessionsForSelectedDate.collectAsState(initial = emptyList())
     val sessionStats by viewModel.completedSessionsCount.collectAsState(initial = Pair(0, 0))

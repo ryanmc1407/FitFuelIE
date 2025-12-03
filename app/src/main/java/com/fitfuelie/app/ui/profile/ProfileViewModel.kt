@@ -2,15 +2,13 @@ package com.fitfuelie.app.ui.profile
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.*
 import com.fitfuelie.app.data.repository.UserProfileRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class ProfileViewModel @Inject constructor(
+class ProfileViewModel(
     private val userProfileRepository: UserProfileRepository
 ) : ViewModel() {
 

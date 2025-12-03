@@ -2,19 +2,17 @@ package com.fitfuelie.app.ui.training
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.TrainingSession
 import com.fitfuelie.app.data.repository.TrainingSessionRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import javax.inject.Inject
 
-@HiltViewModel
-class TrainingViewModel @Inject constructor(
+class TrainingViewModel(
     private val trainingSessionRepository: TrainingSessionRepository
 ) : ViewModel() {
 

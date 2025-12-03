@@ -12,16 +12,23 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.GroceryCategory
 import com.fitfuelie.app.data.model.GroceryItem
+import com.fitfuelie.app.data.repository.GroceryRepository
 
 @Composable
-fun GroceryListScreen(
-    viewModel: GroceryViewModel = hiltViewModel()
-) {
+fun GroceryListScreen() {
+    val context = LocalContext.current
+    val viewModel: GroceryViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = GroceryRepository(database.groceryItemDao())
+        GroceryViewModel(repository)
+    }
     val groceryItems by viewModel.groceryItems.collectAsState(initial = emptyList())
     val showPurchased by viewModel.filterPurchased.collectAsState()
     val itemsByCategory by viewModel.itemsByCategory.collectAsState(initial = emptyMap())

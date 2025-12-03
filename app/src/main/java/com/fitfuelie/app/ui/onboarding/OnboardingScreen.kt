@@ -7,17 +7,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.FitnessGoal
 import com.fitfuelie.app.data.model.TrainingFrequency
 import com.fitfuelie.app.data.model.DietaryPreference
+import com.fitfuelie.app.data.repository.UserProfileRepository
+
 @Composable
 fun OnboardingScreen(
-    onOnboardingComplete: () -> Unit,
-    viewModel: OnboardingViewModel = hiltViewModel()
+    onOnboardingComplete: () -> Unit
 ) {
+    val context = LocalContext.current
+    val viewModel: OnboardingViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = UserProfileRepository(database.userProfileDao())
+        OnboardingViewModel(repository)
+    }
     val pagerState = rememberPagerState(pageCount = { 3 })
     val currentPage by remember { derivedStateOf { pagerState.currentPage } }
 

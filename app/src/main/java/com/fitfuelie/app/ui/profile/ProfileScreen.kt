@@ -9,14 +9,21 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.*
+import com.fitfuelie.app.data.repository.UserProfileRepository
 
 @Composable
-fun ProfileScreen(
-    viewModel: ProfileViewModel = hiltViewModel()
-) {
+fun ProfileScreen() {
+    val context = LocalContext.current
+    val viewModel: ProfileViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = UserProfileRepository(database.userProfileDao())
+        ProfileViewModel(repository)
+    }
     val userProfile by viewModel.userProfile.collectAsState(initial = null)
     var showEditDialog by remember { mutableStateOf(false) }
 

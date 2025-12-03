@@ -103,10 +103,19 @@ fun BottomNavigationBar(navController: NavController) {
 }
 
 @Composable
-fun HomeDashboard(
-    mealViewModel: MealPlannerViewModel = hiltViewModel(),
-    trainingViewModel: TrainingViewModel = hiltViewModel()
-) {
+fun HomeDashboard() {
+    val context = LocalContext.current
+    val mealViewModel: MealPlannerViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = MealRepository(database.mealDao())
+        MealPlannerViewModel(repository)
+    }
+    val trainingViewModel: TrainingViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = TrainingSessionRepository(database.trainingSessionDao())
+        TrainingViewModel(repository)
+    }
+
     val nutritionSummary by mealViewModel.dailyNutritionSummary.collectAsState(
         initial = DailyNutritionSummary(0, 0.0, 0.0, 0.0)
     )

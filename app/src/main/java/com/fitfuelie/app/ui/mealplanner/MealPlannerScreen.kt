@@ -10,19 +10,26 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.Meal
 import com.fitfuelie.app.data.model.MealType
+import com.fitfuelie.app.data.repository.MealRepository
 import kotlinx.coroutines.flow.collectLatest
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 @Composable
-fun MealPlannerScreen(
-    viewModel: MealPlannerViewModel = hiltViewModel()
-) {
+fun MealPlannerScreen() {
+    val context = LocalContext.current
+    val viewModel: MealPlannerViewModel = viewModel {
+        val database = DatabaseProvider.getDatabase(context)
+        val repository = MealRepository(database.mealDao())
+        MealPlannerViewModel(repository)
+    }
     val selectedDate by viewModel.selectedDate.collectAsState()
     val mealsForDate by viewModel.mealsForSelectedDate.collectAsState(initial = emptyList())
     val nutritionSummary by viewModel.dailyNutritionSummary.collectAsState(

@@ -5,7 +5,6 @@ plugins {
     id("androidx.room")
     id("kotlin-parcelize")
     id("androidx.navigation.safeargs.kotlin")
-    id("dagger.hilt.android.plugin")
 }
 
 android {
@@ -76,9 +75,7 @@ dependencies {
     implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
 
-    // Hilt dependency injection
-    implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    // Manual dependency injection - no Hilt for now
 
     // ViewModel and LiveData
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.7.0")

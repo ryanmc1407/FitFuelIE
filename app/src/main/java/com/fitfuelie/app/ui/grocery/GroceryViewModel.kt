@@ -2,19 +2,17 @@ package com.fitfuelie.app.ui.grocery
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.fitfuelie.app.data.DatabaseProvider
 import com.fitfuelie.app.data.model.GroceryCategory
 import com.fitfuelie.app.data.model.GroceryItem
 import com.fitfuelie.app.data.repository.GroceryRepository
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class GroceryViewModel @Inject constructor(
+class GroceryViewModel(
     private val groceryRepository: GroceryRepository
 ) : ViewModel() {
 
