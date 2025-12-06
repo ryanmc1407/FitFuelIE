@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+
 
 class MainViewModel(
     private val userProfileRepository: UserProfileRepository

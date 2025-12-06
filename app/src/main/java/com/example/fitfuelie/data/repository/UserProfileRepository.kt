@@ -3,11 +3,9 @@ package com.example.fitfuelie.data.repository
 import com.example.fitfuelie.data.local.dao.UserProfileDao
 import com.example.fitfuelie.data.local.entity.UserProfile
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class UserProfileRepository @Inject constructor(
+
+class UserProfileRepository(
     private val userProfileDao: UserProfileDao
 ) {
 

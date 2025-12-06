@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,6 +36,23 @@ fun TrainingCalendarScreen(
     val selectedDate by viewModel.selectedDate.collectAsState()
     val sessions by viewModel.sessionsForSelectedDate.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val error by viewModel.error.collectAsState()
+    val message by viewModel.message.collectAsState()
+    val context = androidx.compose.ui.platform.LocalContext.current
+
+    LaunchedEffect(error) {
+        error?.let {
+            android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_LONG).show()
+            viewModel.clearError()
+        }
+    }
+
+    LaunchedEffect(message) {
+        message?.let {
+            android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
+            viewModel.clearMessage()
+        }
+    }
 
     var showAddSessionDialog by remember { mutableStateOf(false) }
     var editingSession by remember { mutableStateOf<TrainingSession?>(null) }
@@ -51,6 +69,9 @@ fun TrainingCalendarScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { viewModel.generateDailyWorkout() }) {
+                        Icon(Icons.Default.Refresh, contentDescription = "Generate daily workout")
+                    }
                     IconButton(onClick = { showAddSessionDialog = true }) {
                         Icon(Icons.Default.Add, contentDescription = "Add session")
                     }
@@ -108,7 +129,7 @@ fun TrainingCalendarScreen(
         }
     }
 
-    // Add session dialog
+            // Add session dialog
     if (showAddSessionDialog) {
         AddEditTrainingSessionDialog(
             session = null,
@@ -116,6 +137,7 @@ fun TrainingCalendarScreen(
             onSave = { title, type, intensity, duration, notes ->
                 viewModel.addTrainingSession(title, type, intensity, duration, notes)
                 showAddSessionDialog = false
+                android.widget.Toast.makeText(context, "Training session added!", android.widget.Toast.LENGTH_SHORT).show()
             }
         )
     }
@@ -135,6 +157,7 @@ fun TrainingCalendarScreen(
                 )
                 viewModel.updateTrainingSession(updatedSession)
                 editingSession = null
+                android.widget.Toast.makeText(context, "Training session updated!", android.widget.Toast.LENGTH_SHORT).show()
             }
         )
     }
@@ -375,7 +398,7 @@ private fun AddEditTrainingSessionDialog(
 
                     onSave(title, selectedType, selectedIntensity, dur, finalNotes)
                 },
-                enabled = title.isNotBlank() && duration.isNotBlank()
+                enabled = title.isNotBlank() && duration.toIntOrNull() != null
             ) {
                 Text("Save")
             }

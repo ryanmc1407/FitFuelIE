@@ -4,11 +4,9 @@ import com.example.fitfuelie.data.local.dao.MealDao
 import com.example.fitfuelie.data.local.entity.Meal
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class MealRepository @Inject constructor(
+
+class MealRepository(
     private val mealDao: MealDao
 ) {
 

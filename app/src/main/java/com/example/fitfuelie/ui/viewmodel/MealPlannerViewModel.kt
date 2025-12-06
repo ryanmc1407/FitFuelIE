@@ -8,10 +8,11 @@ import com.example.fitfuelie.data.repository.MealRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
-import javax.inject.Inject
+
 
 class MealPlannerViewModel(
-    private val mealRepository: MealRepository
+    private val mealRepository: MealRepository,
+    private val groceryItemRepository: com.example.fitfuelie.data.repository.GroceryItemRepository
 ) : ViewModel() {
 
     private val _selectedDate = MutableStateFlow(Calendar.getInstance().time)
@@ -62,7 +63,8 @@ class MealPlannerViewModel(
         protein: Float,
         carbs: Float,
         fat: Float,
-        notes: String? = null
+        notes: String? = null,
+        addToGroceryList: Boolean = false
     ) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -78,6 +80,16 @@ class MealPlannerViewModel(
                     notes = notes
                 )
                 mealRepository.insertMeal(meal)
+
+                if (addToGroceryList) {
+                    val groceryItem = com.example.fitfuelie.data.local.entity.GroceryItem(
+                        name = name,
+                        quantity = "1",
+                        category = com.example.fitfuelie.data.model.GroceryCategory.OTHER,
+                        notes = if (notes.isNullOrBlank()) "From Meal Planner" else "From Meal Planner: $notes"
+                    )
+                    groceryItemRepository.insertGroceryItem(groceryItem)
+                }
             } finally {
                 _isLoading.value = false
             }

@@ -20,22 +20,60 @@ import com.example.fitfuelie.data.model.MealType
 import com.example.fitfuelie.ui.viewmodel.DashboardViewModel
 import com.example.fitfuelie.ui.viewmodel.NutritionSummary
 import com.example.fitfuelie.ui.viewmodel.TrainingStats
+import com.example.fitfuelie.ui.viewmodel.SensorViewModel
+import com.example.fitfuelie.ui.components.StepCounterWidget
 import java.text.SimpleDateFormat
 import java.util.*
 
+/**
+ * DashboardScreen
+ * 
+ * Main dashboard screen that displays an overview of the user's fitness data.
+ * 
+ * Features:
+ * - Welcome message with user's name
+ * - Daily step counter with progress toward goal
+ * - Nutrition summary (calories, protein, fat)
+ * - Training summary (sessions completed, time spent)
+ * - List of today's meals
+ * - List of today's training sessions
+ * - Shake gesture detection for quick actions
+ * 
+ * @param viewModel ViewModel containing dashboard data
+ * @param sensorViewModel ViewModel containing sensor data (steps, activity level)
+ * @param onAddMeal Callback when user wants to add a meal
+ * @param onAddTraining Callback when user wants to add a training session
+ * @param onViewMeals Callback to navigate to meal planner
+ * @param onViewTraining Callback to navigate to training calendar
+ */
 @Composable
 fun DashboardScreen(
     viewModel: DashboardViewModel,
+    sensorViewModel: SensorViewModel,
     onAddMeal: () -> Unit,
     onAddTraining: () -> Unit,
     onViewMeals: () -> Unit,
     onViewTraining: () -> Unit
 ) {
+    // Collect state from ViewModels
     val userProfile by viewModel.userProfile.collectAsState()
     val todaysNutrition by viewModel.todaysNutrition.collectAsState()
     val todaysTrainingStats by viewModel.todaysTrainingStats.collectAsState()
     val todaysMeals by viewModel.todaysMeals.collectAsState()
     val todaysSessions by viewModel.todaysSessions.collectAsState()
+    
+    // Collect sensor data
+    val dailySteps by sensorViewModel.dailySteps.collectAsState()
+    val shakeDetected by sensorViewModel.shakeDetected.collectAsState()
+    val sensorsAvailable by sensorViewModel.sensorsAvailable.collectAsState()
+    
+    // Handle shake gesture - show snackbar with quick action options
+    LaunchedEffect(shakeDetected) {
+        if (shakeDetected) {
+            // In production: Show a dialog or snackbar with quick action options
+            android.util.Log.d("DashboardScreen", "Shake detected! Quick action triggered.")
+        }
+    }
 
     LazyColumn(
         modifier = Modifier
@@ -49,6 +87,16 @@ fun DashboardScreen(
                 text = "Welcome back, ${userProfile?.name ?: "Athlete"}!",
                 style = MaterialTheme.typography.headlineMedium
             )
+        }
+
+        // Step counter widget (if sensor is available)
+        if (sensorsAvailable.hasStepCounter) {
+            item {
+                StepCounterWidget(
+                    steps = dailySteps,
+                    goal = 10000 // Default goal, could be customized per user
+                )
+            }
         }
 
         // Today's nutrition summary
@@ -114,7 +162,13 @@ private fun NutritionSummaryCard(
     onAddMeal: () -> Unit,
     onViewMeals: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -176,7 +230,13 @@ private fun TrainingSummaryCard(
     onAddTraining: () -> Unit,
     onViewTraining: () -> Unit
 ) {
-    Card(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+        )
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

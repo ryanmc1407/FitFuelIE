@@ -4,11 +4,9 @@ import com.example.fitfuelie.data.local.dao.TrainingSessionDao
 import com.example.fitfuelie.data.local.entity.TrainingSession
 import kotlinx.coroutines.flow.Flow
 import java.util.Date
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class TrainingSessionRepository @Inject constructor(
+
+class TrainingSessionRepository(
     private val trainingSessionDao: TrainingSessionDao
 ) {
 

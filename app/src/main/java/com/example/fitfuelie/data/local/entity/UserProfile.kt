@@ -14,6 +14,7 @@ data class UserProfile(
     val goal: Goal,
     val trainingFrequency: TrainingFrequency,
     val dietaryPreference: DietaryPreference,
+    val weight: Float, // in kg
     val dailyCalorieTarget: Int,
     val dailyProteinTarget: Float,
     val dailyCarbTarget: Float,

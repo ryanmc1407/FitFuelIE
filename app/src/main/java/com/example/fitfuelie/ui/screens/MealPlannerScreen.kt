@@ -113,8 +113,8 @@ fun MealPlannerScreen(
         AddEditMealDialog(
             meal = null,
             onDismiss = { showAddMealDialog = false },
-            onSave = { name, type, calories, protein, carbs, fat, notes ->
-                viewModel.addMeal(name, type, calories, protein, carbs, fat, notes)
+            onSave = { name, type, calories, protein, carbs, fat, notes, addToGrocery ->
+                viewModel.addMeal(name, type, calories, protein, carbs, fat, notes, addToGrocery)
                 showAddMealDialog = false
             }
         )
@@ -125,7 +125,7 @@ fun MealPlannerScreen(
         AddEditMealDialog(
             meal = meal,
             onDismiss = { editingMeal = null },
-            onSave = { name, type, calories, protein, carbs, fat, notes ->
+            onSave = { name, type, calories, protein, carbs, fat, notes, _ ->
                 val updatedMeal = meal.copy(
                     name = name,
                     type = type,
@@ -350,7 +350,7 @@ private fun MealCard(
 private fun AddEditMealDialog(
     meal: Meal?,
     onDismiss: () -> Unit,
-    onSave: (String, MealType, Int, Float, Float, Float, String?) -> Unit
+    onSave: (String, MealType, Int, Float, Float, Float, String?, Boolean) -> Unit
 ) {
     var name by remember { mutableStateOf(meal?.name ?: "") }
     var selectedType by remember { mutableStateOf(meal?.type ?: MealType.BREAKFAST) }
@@ -359,6 +359,7 @@ private fun AddEditMealDialog(
     var carbs by remember { mutableStateOf(meal?.carbs?.toString() ?: "") }
     var fat by remember { mutableStateOf(meal?.fat?.toString() ?: "") }
     var notes by remember { mutableStateOf(meal?.notes ?: "") }
+    var addToGroceryList by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -443,6 +444,23 @@ private fun AddEditMealDialog(
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2
                 )
+
+                // Add to grocery list checkbox (only for new meals)
+                if (meal == null) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { addToGroceryList = !addToGroceryList },
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = addToGroceryList,
+                            onCheckedChange = { addToGroceryList = it }
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Add ingredients to grocery list?")
+                    }
+                }
             }
         },
         confirmButton = {
@@ -454,7 +472,7 @@ private fun AddEditMealDialog(
                     val ft = fat.toFloatOrNull() ?: 0f
                     val finalNotes = notes.takeIf { it.isNotBlank() }
 
-                    onSave(name, selectedType, cal, prot, carb, ft, finalNotes)
+                    onSave(name, selectedType, cal, prot, carb, ft, finalNotes, addToGroceryList)
                 },
                 enabled = name.isNotBlank()
             ) {

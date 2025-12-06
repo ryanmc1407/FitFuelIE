@@ -61,7 +61,10 @@ fun ProfileScreen(
                         profile = profile
                     )
                 } else {
-                    ViewProfileContent(profile = profile)
+                    ViewProfileContent(
+                        viewModel = viewModel,
+                        profile = profile
+                    )
                 }
             } ?: run {
                 // Profile not found
@@ -90,7 +93,10 @@ fun ProfileScreen(
 }
 
 @Composable
-private fun ViewProfileContent(profile: UserProfile) {
+private fun ViewProfileContent(
+    viewModel: ProfileViewModel,
+    profile: UserProfile
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()

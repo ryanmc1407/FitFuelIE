@@ -7,7 +7,7 @@ import com.example.fitfuelie.data.model.GroceryCategory
 import com.example.fitfuelie.data.repository.GroceryItemRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+
 
 class GroceryListViewModel(
     private val groceryRepository: GroceryItemRepository

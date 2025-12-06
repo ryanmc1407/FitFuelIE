@@ -10,8 +10,9 @@ import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+
 
 class OnboardingViewModel(
     private val userProfileRepository: UserProfileRepository
@@ -29,33 +30,18 @@ class OnboardingViewModel(
     private val _selectedDietaryPreference = MutableStateFlow<DietaryPreference?>(null)
     val selectedDietaryPreference: StateFlow<DietaryPreference?> = _selectedDietaryPreference.asStateFlow()
 
-    private val _userName = MutableStateFlow("")
-    val userName: StateFlow<String> = _userName.asStateFlow()
+    private val _weight = MutableStateFlow("")
+    val weight: StateFlow<String> = _weight.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error.asStateFlow()
-
-    fun updateUserName(name: String) {
-        _userName.value = name
-    }
-
-    fun selectGoal(goal: Goal) {
-        _selectedGoal.value = goal
-    }
-
-    fun selectTrainingFrequency(frequency: TrainingFrequency) {
-        _selectedTrainingFrequency.value = frequency
-    }
-
-    fun selectDietaryPreference(preference: DietaryPreference) {
-        _selectedDietaryPreference.value = preference
+    fun updateWeight(weightInput: String) {
+        // Allow only numbers and one decimal point
+        if (weightInput.isEmpty() || weightInput.matches(Regex("^\\d*\\.?\\d*$"))) {
+            _weight.value = weightInput
+        }
     }
 
     fun nextStep() {
-        if (_currentStep.value < 2) {
+        if (_currentStep.value < 3) { // Increased steps from 2 to 3
             _currentStep.value += 1
         }
     }
@@ -71,6 +57,7 @@ class OnboardingViewModel(
         val trainingFrequency = _selectedTrainingFrequency.value ?: return
         val dietaryPreference = _selectedDietaryPreference.value ?: return
         val name = _userName.value.takeIf { it.isNotBlank() } ?: return
+        val weightVal = _weight.value.toFloatOrNull() ?: return
 
         viewModelScope.launch {
             _isLoading.value = true
@@ -78,13 +65,14 @@ class OnboardingViewModel(
 
             try {
                 // Calculate default nutrition targets based on selections
-                val (calories, protein, carbs, fat) = calculateDefaultTargets(goal, trainingFrequency)
+                val (calories, protein, carbs, fat) = calculateDefaultTargets(goal, trainingFrequency, weightVal)
 
                 val userProfile = UserProfile(
                     name = name,
                     goal = goal,
                     trainingFrequency = trainingFrequency,
                     dietaryPreference = dietaryPreference,
+                    weight = weightVal,
                     dailyCalorieTarget = calories,
                     dailyProteinTarget = protein,
                     dailyCarbTarget = carbs,
@@ -101,59 +89,68 @@ class OnboardingViewModel(
         }
     }
 
-    private fun calculateDefaultTargets(goal: Goal, trainingFrequency: TrainingFrequency): Quadruple<Int, Float, Float, Float> {
-        // Base values for maintenance
-        var calories = 2000
-        var protein = 150f
-        var carbs = 250f
-        var fat = 67f
+    private fun calculateDefaultTargets(
+        goal: Goal, 
+        trainingFrequency: TrainingFrequency,
+        weightKg: Float
+    ): Quadruple<Int, Float, Float, Float> {
+        // 1. Estimate BMR (Basal Metabolic Rate) using simplified formula
+        // BMR ≈ 22 * weight_in_kg (Rough estimate for average person)
+        val bmr = 22 * weightKg
 
-        // Adjust for goal
+        // 2. Estimate TDEE (Total Daily Energy Expenditure) based on activity
+        val activityMultiplier = when (trainingFrequency) {
+            TrainingFrequency.TWO_THREE_DAYS -> 1.375f // Lightly active
+            TrainingFrequency.FOUR_FIVE_DAYS -> 1.55f  // Moderately active
+            TrainingFrequency.SIX_PLUS_DAYS -> 1.725f  // Very active
+        }
+        
+        var targetCalories = (bmr * activityMultiplier).toInt()
+
+        // 3. Adjust for Goal
         when (goal) {
-            Goal.BUILD_MUSCLE -> {
-                calories += 500
-                protein += 50
-            }
-            Goal.LOSE_WEIGHT -> {
-                calories -= 500
-                protein += 25
-            }
-            Goal.IMPROVE_PERFORMANCE -> {
-                calories += 250
-                carbs += 50
-            }
-            Goal.MAINTAIN_FITNESS -> {
-                // Keep base values
-            }
+            Goal.LOSE_WEIGHT -> targetCalories -= 500
+            Goal.BUILD_MUSCLE -> targetCalories += 300
+            Goal.IMPROVE_PERFORMANCE -> targetCalories += 0 // Maintenance/Performance
+            Goal.MAINTAIN_FITNESS -> targetCalories += 0
         }
 
-        // Adjust for training frequency
-        when (trainingFrequency) {
-            TrainingFrequency.TWO_THREE_DAYS -> {
-                calories += 200
-                protein += 25
-            }
-            TrainingFrequency.FOUR_FIVE_DAYS -> {
-                calories += 400
-                protein += 50
-            }
-            TrainingFrequency.SIX_PLUS_DAYS -> {
-                calories += 600
-                protein += 75
-            }
-        }
+        // Ensure calories don't go too low
+        if (targetCalories < 1200) targetCalories = 1200
 
-        return Quadruple(calories, protein, carbs, fat)
+        // 4. Calculate Macros
+        // Protein: 2g per kg of bodyweight (good for active individuals)
+        val proteinGrams = (2.0f * weightKg).coerceAtLeast(50f) // Minimum 50g
+        
+        // Fat: 0.8g per kg of bodyweight
+        val fatGrams = (0.8f * weightKg).coerceAtLeast(30f) // Minimum 30g
+
+        // Carbs: Remaining calories
+        // Protein = 4 cal/g, Fat = 9 cal/g, Carbs = 4 cal/g
+        val proteinCals = proteinGrams * 4
+        val fatCals = fatGrams * 9
+        val remainingCals = targetCalories - proteinCals - fatCals
+        val carbGrams = (remainingCals / 4).coerceAtLeast(50f) // Minimum 50g
+
+        return Quadruple(targetCalories, proteinGrams, carbGrams, fatGrams)
     }
 
-    fun canProceedToNextStep(): Boolean {
-        return when (_currentStep.value) {
-            0 -> _selectedGoal.value != null
-            1 -> _selectedTrainingFrequency.value != null
-            2 -> _selectedDietaryPreference.value != null && _userName.value.isNotBlank()
+    val isNextEnabled: StateFlow<Boolean> = kotlinx.coroutines.flow.combine(
+        _currentStep,
+        _selectedGoal,
+        _selectedTrainingFrequency,
+        _selectedDietaryPreference,
+        _userName,
+        _weight
+    ) { step, goal, freq, diet, name, weight ->
+        when (step) {
+            0 -> goal != null
+            1 -> freq != null
+            2 -> weight.toFloatOrNull() != null && weight.toFloat() > 0
+            3 -> diet != null && name.isNotBlank()
             else -> false
         }
-    }
+    }.stateIn(viewModelScope, kotlinx.coroutines.flow.SharingStarted.WhileSubscribed(5000), false)
 
     fun clearError() {
         _error.value = null

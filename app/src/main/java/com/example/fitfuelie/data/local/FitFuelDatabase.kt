@@ -3,9 +3,15 @@ package com.example.fitfuelie.data.local
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
-import com.example.fitfuelie.data.local.converter.TypeConverters
-import com.example.fitfuelie.data.local.dao.*
-import com.example.fitfuelie.data.local.entity.*
+import com.example.fitfuelie.data.local.converter.TypeConverters as FitFuelTypeConverters
+import com.example.fitfuelie.data.local.dao.GroceryItemDao
+import com.example.fitfuelie.data.local.dao.MealDao
+import com.example.fitfuelie.data.local.dao.TrainingSessionDao
+import com.example.fitfuelie.data.local.dao.UserProfileDao
+import com.example.fitfuelie.data.local.entity.GroceryItem
+import com.example.fitfuelie.data.local.entity.Meal
+import com.example.fitfuelie.data.local.entity.TrainingSession
+import com.example.fitfuelie.data.local.entity.UserProfile
 
 @Database(
     entities = [
@@ -17,7 +23,7 @@ import com.example.fitfuelie.data.local.entity.*
     version = 1,
     exportSchema = false
 )
-@TypeConverters(TypeConverters::class)
+@TypeConverters(FitFuelTypeConverters::class)
 abstract class FitFuelDatabase : RoomDatabase() {
 
     abstract fun mealDao(): MealDao

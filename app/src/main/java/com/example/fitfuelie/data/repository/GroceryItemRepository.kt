@@ -4,11 +4,9 @@ import com.example.fitfuelie.data.local.dao.GroceryItemDao
 import com.example.fitfuelie.data.local.entity.GroceryItem
 import com.example.fitfuelie.data.model.GroceryCategory
 import kotlinx.coroutines.flow.Flow
-import javax.inject.Inject
-import javax.inject.Singleton
 
-@Singleton
-class GroceryItemRepository @Inject constructor(
+
+class GroceryItemRepository(
     private val groceryItemDao: GroceryItemDao
 ) {
 

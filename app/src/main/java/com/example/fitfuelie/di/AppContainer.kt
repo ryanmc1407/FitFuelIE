@@ -13,7 +13,9 @@ class AppContainer(private val context: Context) {
             context,
             FitFuelDatabase::class.java,
             FitFuelDatabase.DATABASE_NAME
-        ).build()
+        )
+        .fallbackToDestructiveMigration()
+        .build()
     }
 
     // Repositories

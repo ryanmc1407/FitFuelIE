@@ -9,7 +9,7 @@ import com.example.fitfuelie.data.model.TrainingFrequency
 import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import javax.inject.Inject
+
 
 class ProfileViewModel(
     private val userProfileRepository: UserProfileRepository

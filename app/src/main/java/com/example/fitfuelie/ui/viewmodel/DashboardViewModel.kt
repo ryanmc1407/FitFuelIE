@@ -8,7 +8,7 @@ import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
-import javax.inject.Inject
+
 
 class DashboardViewModel(
     private val mealRepository: MealRepository,

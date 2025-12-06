@@ -12,6 +12,25 @@ import com.example.fitfuelie.ui.components.BottomNavigationBar
 
 @Composable
 fun MainScreen(appContainer: AppContainer) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val permissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
+        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        // Permission result handled automatically by system/sensor manager
+    }
+
+    LaunchedEffect(Unit) {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            if (androidx.core.content.ContextCompat.checkSelfPermission(
+                    context,
+                    android.Manifest.permission.ACTIVITY_RECOGNITION
+                ) != android.content.pm.PackageManager.PERMISSION_GRANTED
+            ) {
+                permissionLauncher.launch(android.Manifest.permission.ACTIVITY_RECOGNITION)
+            }
+        }
+    }
+
     val navController = rememberNavController()
     val screens = listOf(
         Screen.Dashboard,
@@ -31,6 +50,7 @@ fun MainScreen(appContainer: AppContainer) {
     ) { padding ->
         AppNavigation(
             appContainer = appContainer,
+            navController = navController,
             modifier = Modifier.padding(padding)
         )
     }
