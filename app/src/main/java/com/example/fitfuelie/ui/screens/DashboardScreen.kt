@@ -89,14 +89,12 @@ fun DashboardScreen(
             )
         }
 
-        // Step counter widget (if sensor is available)
-        if (sensorsAvailable.hasStepCounter) {
-            item {
-                StepCounterWidget(
-                    steps = dailySteps,
-                    goal = 10000 // Default goal, could be customized per user
-                )
-            }
+        // Step counter widget
+        item {
+            StepCounterWidget(
+                steps = dailySteps,
+                goal = 10000 // Default goal, could be customized per user
+            )
         }
 
         // Today's nutrition summary

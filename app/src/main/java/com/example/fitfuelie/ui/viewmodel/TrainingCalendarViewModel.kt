@@ -99,7 +99,11 @@ class TrainingCalendarViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val userProfile = userProfileRepository.getUserProfile().firstOrNull() ?: return@launch
+                val userProfile = userProfileRepository.getUserProfile().firstOrNull()
+                if (userProfile == null) {
+                    _error.value = "User profile not found. Please complete onboarding."
+                    return@launch
+                }
                 val calendar = Calendar.getInstance().apply { time = _selectedDate.value }
                 val dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
 

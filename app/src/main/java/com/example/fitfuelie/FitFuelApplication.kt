@@ -2,6 +2,7 @@ package com.example.fitfuelie
 
 import android.app.Application
 import androidx.work.*
+import com.example.fitfuelie.workers.DailyReminderWorker
 import com.example.fitfuelie.workers.DataCleanupWorker
 import com.example.fitfuelie.workers.DailyNutritionSummaryWorker
 import com.example.fitfuelie.workers.TrainingReminderWorker
@@ -96,6 +97,28 @@ class FitFuelApplication : Application() {
             "data_cleanup",
             ExistingPeriodicWorkPolicy.KEEP,
             dataCleanupRequest
+        )
+
+        // 4. Daily Reminder Worker
+        // Runs daily to remind user to log data
+        val dailyReminderRequest = PeriodicWorkRequestBuilder<DailyReminderWorker>(
+            repeatInterval = 1,
+            repeatIntervalTimeUnit = TimeUnit.DAYS
+        )
+            .setConstraints(
+                Constraints.Builder()
+                    .setRequiresBatteryNotLow(true) // Don't run if battery is low
+                    .build()
+            )
+            .setInitialDelay(12, TimeUnit.HOURS) // Start around noon/evening if app opened in morning
+            .build()
+
+        // I'm using KEEP here so that if the work is already scheduled, it doesn't get replaced.
+        // This prevents duplicate tasks from piling up.
+        workManager.enqueueUniquePeriodicWork(
+            "daily_reminder",
+            ExistingPeriodicWorkPolicy.KEEP,
+            dailyReminderRequest
         )
     }
 }

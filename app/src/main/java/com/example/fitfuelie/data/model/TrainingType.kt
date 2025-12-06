@@ -6,5 +6,6 @@ enum class TrainingType {
     FLEXIBILITY,
     SPORTS_SPECIFIC_GAA,
     RECOVERY,
+    HIIT,
     OTHER
 }

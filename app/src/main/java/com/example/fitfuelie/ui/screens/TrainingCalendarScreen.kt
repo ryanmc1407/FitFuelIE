@@ -14,6 +14,10 @@ import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.*
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.FilterChip
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,12 +31,15 @@ import com.example.fitfuelie.ui.viewmodel.TrainingCalendarViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 
+// This screen handles the training calendar. I used a ViewModel to manage the state
+// so that the UI updates automatically when data changes.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrainingCalendarScreen(
     viewModel: TrainingCalendarViewModel,
     onNavigateBack: () -> Unit
 ) {
+    // Collecting the state from the ViewModel. Using collectAsState so Compose knows when to redraw.
     val selectedDate by viewModel.selectedDate.collectAsState()
     val sessions by viewModel.sessionsForSelectedDate.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
@@ -40,6 +47,8 @@ fun TrainingCalendarScreen(
     val message by viewModel.message.collectAsState()
     val context = androidx.compose.ui.platform.LocalContext.current
 
+    // I used LaunchedEffect here because I only want to show the Toast when the error changes.
+    // If I didn't use this, the Toast might show up every time the screen recomposes!
     LaunchedEffect(error) {
         error?.let {
             android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_LONG).show()
@@ -47,6 +56,7 @@ fun TrainingCalendarScreen(
         }
     }
 
+    // Same thing here for success messages (like when a workout is generated)
     LaunchedEffect(message) {
         message?.let {
             android.widget.Toast.makeText(context, it, android.widget.Toast.LENGTH_SHORT).show()
@@ -100,16 +110,27 @@ fun TrainingCalendarScreen(
             ) {
                 if (sessions.isEmpty()) {
                     item {
-                        Box(
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(32.dp),
-                            contentAlignment = Alignment.Center
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(16.dp)
                         ) {
                             Text(
-                                text = "No training sessions for this date.\nTap the + button to schedule your first session!",
+                                text = "No training sessions for this date.",
                                 style = MaterialTheme.typography.bodyLarge,
                                 textAlign = TextAlign.Center,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Button(onClick = { viewModel.generateDailyWorkout() }) {
+                                Icon(Icons.Default.Refresh, contentDescription = null)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("Generate Daily Workout")
+                            }
+                            Text(
+                                text = "or tap + to add manually",
+                                style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -308,6 +329,9 @@ private fun TrainingSessionCard(
     }
 }
 
+// This dialog is used for both adding AND editing sessions.
+// If 'session' is null, we know we are adding a new one. If it's not null, we are editing.
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddEditTrainingSessionDialog(
     session: TrainingSession?,
@@ -319,6 +343,8 @@ private fun AddEditTrainingSessionDialog(
     var selectedIntensity by remember { mutableStateOf(session?.intensity ?: Intensity.MODERATE) }
     var duration by remember { mutableStateOf(session?.duration?.toString() ?: "") }
     var notes by remember { mutableStateOf(session?.notes ?: "") }
+    
+    var expandedType by remember { mutableStateOf(false) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -334,51 +360,65 @@ private fun AddEditTrainingSessionDialog(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text("Session Title") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true
                 )
 
-                // Training type selection
-                Text("Training Type", style = MaterialTheme.typography.bodyMedium)
-                TrainingType.values().forEach { type ->
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectedType = type },
-                        verticalAlignment = Alignment.CenterVertically
+                // Training type selection (Dropdown)
+                ExposedDropdownMenuBox(
+                    expanded = expandedType,
+                    onExpandedChange = { expandedType = !expandedType }
+                ) {
+                    OutlinedTextField(
+                        value = selectedType.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() },
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Training Type") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedType) },
+                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        modifier = Modifier.menuAnchor().fillMaxWidth()
+                    )
+                    ExposedDropdownMenu(
+                        expanded = expandedType,
+                        onDismissRequest = { expandedType = false }
                     ) {
-                        RadioButton(
-                            selected = selectedType == type,
-                            onClick = { selectedType = type }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(type.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() })
+                        TrainingType.values().forEach { type ->
+                            DropdownMenuItem(
+                                text = { Text(type.name.replace("_", " ").lowercase().replaceFirstChar { it.uppercase() }) },
+                                onClick = {
+                                    selectedType = type
+                                    expandedType = false
+                                }
+                            )
+                        }
                     }
                 }
 
-                // Intensity selection
-                Text("Intensity", style = MaterialTheme.typography.bodyMedium)
-                Intensity.values().forEach { intensity ->
+                // Intensity selection (Row of Chips)
+                Column {
+                    Text("Intensity", style = MaterialTheme.typography.bodyMedium)
+                    Spacer(modifier = Modifier.height(8.dp))
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { selectedIntensity = intensity },
-                        verticalAlignment = Alignment.CenterVertically
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceEvenly
                     ) {
-                        RadioButton(
-                            selected = selectedIntensity == intensity,
-                            onClick = { selectedIntensity = intensity }
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(intensity.name.lowercase().replaceFirstChar { it.uppercase() })
+                        Intensity.values().forEach { intensity ->
+                            FilterChip(
+                                selected = selectedIntensity == intensity,
+                                onClick = { selectedIntensity = intensity },
+                                label = { Text(intensity.name.lowercase().replaceFirstChar { it.uppercase() }) }
+                            )
+                        }
                     }
                 }
 
                 OutlinedTextField(
                     value = duration,
                     onValueChange = { duration = it },
-                    label = { Text("Duration (minutes)") },
+                    label = { Text("Duration (min)") },
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
@@ -386,19 +426,20 @@ private fun AddEditTrainingSessionDialog(
                     onValueChange = { notes = it },
                     label = { Text("Notes (optional)") },
                     modifier = Modifier.fillMaxWidth(),
-                    minLines = 2
+                    minLines = 2,
+                    maxLines = 4
                 )
             }
         },
         confirmButton = {
             Button(
                 onClick = {
-                    val dur = duration.toIntOrNull() ?: 0
+                    val dur = duration.trim().toIntOrNull() ?: 0
                     val finalNotes = notes.takeIf { it.isNotBlank() }
 
-                    onSave(title, selectedType, selectedIntensity, dur, finalNotes)
+                    onSave(title.trim(), selectedType, selectedIntensity, dur, finalNotes)
                 },
-                enabled = title.isNotBlank() && duration.toIntOrNull() != null
+                enabled = title.isNotBlank() && duration.trim().toIntOrNull() != null
             ) {
                 Text("Save")
             }

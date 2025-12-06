@@ -30,8 +30,33 @@ class OnboardingViewModel(
     private val _selectedDietaryPreference = MutableStateFlow<DietaryPreference?>(null)
     val selectedDietaryPreference: StateFlow<DietaryPreference?> = _selectedDietaryPreference.asStateFlow()
 
+    private val _userName = MutableStateFlow("")
+    val userName: StateFlow<String> = _userName.asStateFlow()
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading.asStateFlow()
+
+    private val _error = MutableStateFlow<String?>(null)
+    val error: StateFlow<String?> = _error.asStateFlow()
+
     private val _weight = MutableStateFlow("")
     val weight: StateFlow<String> = _weight.asStateFlow()
+
+    fun selectGoal(goal: Goal) {
+        _selectedGoal.value = goal
+    }
+
+    fun selectTrainingFrequency(frequency: TrainingFrequency) {
+        _selectedTrainingFrequency.value = frequency
+    }
+
+    fun selectDietaryPreference(preference: DietaryPreference) {
+        _selectedDietaryPreference.value = preference
+    }
+
+    fun updateUserName(name: String) {
+        _userName.value = name
+    }
 
     fun updateWeight(weightInput: String) {
         // Allow only numbers and one decimal point
@@ -142,7 +167,14 @@ class OnboardingViewModel(
         _selectedDietaryPreference,
         _userName,
         _weight
-    ) { step, goal, freq, diet, name, weight ->
+    ) { args: Array<Any?> ->
+        val step = args[0] as Int
+        val goal = args[1] as Goal?
+        val freq = args[2] as TrainingFrequency?
+        val diet = args[3] as DietaryPreference?
+        val name = args[4] as String
+        val weight = args[5] as String
+
         when (step) {
             0 -> goal != null
             1 -> freq != null

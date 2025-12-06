@@ -20,7 +20,7 @@ import com.example.fitfuelie.data.local.entity.UserProfile
         GroceryItem::class,
         UserProfile::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(FitFuelTypeConverters::class)

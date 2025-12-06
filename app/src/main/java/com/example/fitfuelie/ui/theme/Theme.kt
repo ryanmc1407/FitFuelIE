@@ -61,6 +61,20 @@ private val FitFuelDarkColorScheme = darkColorScheme(
     onSurface = Color(0xFFE0E0E0),
     surfaceVariant = Color(0xFF49454F),
     onSurfaceVariant = Color(0xFFCAC4D0),
+    outline = Color(0xFF938F99)
+)
+
+@Composable
+fun FitFuelIETheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = false,
+    content: @Composable () -> Unit
+) {
+    val colorScheme = when {
+        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            val context = LocalContext.current
+            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
         darkTheme -> FitFuelDarkColorScheme
