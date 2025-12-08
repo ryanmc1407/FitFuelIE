@@ -12,16 +12,10 @@ import kotlin.math.sqrt
 
 /**
  * FitFuelSensorManager
- * 
- * 
- * 
- * 
+ *
  * Manages two primary sensors for the FitFuel app:
  * 1. Step Counter - Tracks total steps taken by the user
  * 2. Accelerometer - Detects device movement and shake gestures
- * 
- * 
- * 
  */
 class FitFuelSensorManager(context: Context) {
 
@@ -50,10 +44,8 @@ class FitFuelSensorManager(context: Context) {
      * Provides a Flow of step count data from the step counter sensor.
      * 
      * The step counter returns the total number of steps taken since the
-     * last device reboot. To get daily steps, you need to store the initial
-     * value at the start of each day and calculate the difference.
-     * 
-     * @return Flow<Int> emitting step count values, or null if sensor unavailable
+     * last device reboot.
+     * @return Flow<Int> step count values
      */
     fun getStepCountFlow(): Flow<Int>? {
         // Return null if step counter is not available
@@ -92,12 +84,12 @@ class FitFuelSensorManager(context: Context) {
     /**
      * Provides a Flow of accelerometer data for detecting device movement.
      * 
-     * Emits acceleration magnitude values that can be used to detect:
+     *  acceleration  values that can be used to detect:
      * - Shake gestures (high magnitude spikes)
      * - Activity level (sustained high magnitude)
      * - Device orientation changes
      * 
-     * @return Flow<Float> emitting acceleration magnitude, or null if sensor unavailable
+     * @return Flow<Float>  acceleration magnitude
      */
     fun getAccelerometerFlow(): Flow<Float>? {
         // Return null if accelerometer is not available
@@ -141,11 +133,11 @@ class FitFuelSensorManager(context: Context) {
      * Detects shake gestures from accelerometer data.
      * 
      * A shake is detected when the acceleration magnitude exceeds a threshold
-     * (typically 15-20 m/s²). This can be used to trigger quick actions like
+     *. This can be used to trigger quick actions like
      * adding a meal or starting a workout.
      * 
-     * @param threshold Acceleration threshold for shake detection (default: 18.0 m/s²)
-     * @return Flow<Boolean> emitting true when shake is detected, or null if unavailable
+     * @param threshold Acceleration threshold for shake detection
+     * @return Flow<Boolean> emitting true when shake is detected
      */
     fun getShakeDetectionFlow(threshold: Float = 18.0f): Flow<Boolean>? {
         val accelerometerFlow = getAccelerometerFlow() ?: return null

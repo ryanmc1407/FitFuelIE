@@ -8,6 +8,12 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 
+/**
+ * DailyReminderWorker
+ * 
+ * Sends daily reminder notifications to encourage users to log meals and workouts.
+ * Runs once per day with a 12-hour delay to avoid late-night notifications.
+ */
 class DailyReminderWorker(
     context: Context,
     workerParams: WorkerParameters
@@ -15,7 +21,7 @@ class DailyReminderWorker(
 
     override suspend fun doWork(): Result {
         // This is where the background work happens.
-        // We just need to send a notification here.
+        // I just need to send a notification here.
         sendNotification()
         return Result.success()
     }
@@ -25,7 +31,7 @@ class DailyReminderWorker(
             applicationContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
         // Android 8.0 (Oreo) and above requires a Notification Channel.
-        // If we don't do this, the notification won't show up on newer phones!
+        // If I don't do this, the notification won't show up on newer phones!
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 CHANNEL_ID,

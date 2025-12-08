@@ -8,7 +8,12 @@ import com.example.fitfuelie.data.repository.GroceryItemRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-
+/**
+ * GroceryListViewModel
+ * 
+ * Manages the grocery list , add items, filter by category, check off purchased items.
+ * Tracks purchased vs unpurchased items separately.
+ */
 class GroceryListViewModel(
     private val groceryRepository: GroceryItemRepository
 ) : ViewModel() {

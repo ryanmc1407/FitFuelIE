@@ -137,7 +137,12 @@ fun MealPlannerScreen(
                 )
                 viewModel.updateMeal(updatedMeal)
                 editingMeal = null
+            },
+            onDelete = {
+                viewModel.deleteMeal(meal)
+                editingMeal = null
             }
+
         )
     }
 
@@ -177,7 +182,7 @@ private fun DatePickerCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Simple date navigation (can be enhanced with a proper date picker)
+            //  date navigation
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -350,7 +355,8 @@ private fun MealCard(
 private fun AddEditMealDialog(
     meal: Meal?,
     onDismiss: () -> Unit,
-    onSave: (String, MealType, Int, Float, Float, Float, String?, Boolean) -> Unit
+    onSave: (String, MealType, Int, Float, Float, Float, String?, Boolean) -> Unit,
+    onDelete: (() -> Unit)? = null
 ) {
     var name by remember { mutableStateOf(meal?.name ?: "") }
     var selectedType by remember { mutableStateOf(meal?.type ?: MealType.BREAKFAST) }
@@ -464,19 +470,34 @@ private fun AddEditMealDialog(
             }
         },
         confirmButton = {
-            Button(
-                onClick = {
-                    val cal = calories.toIntOrNull() ?: 0
-                    val prot = protein.toFloatOrNull() ?: 0f
-                    val carb = carbs.toFloatOrNull() ?: 0f
-                    val ft = fat.toFloatOrNull() ?: 0f
-                    val finalNotes = notes.takeIf { it.isNotBlank() }
-
-                    onSave(name, selectedType, cal, prot, carb, ft, finalNotes, addToGroceryList)
-                },
-                enabled = name.isNotBlank()
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Save")
+                if (meal != null && onDelete != null) {
+                    TextButton(
+                        onClick = onDelete,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) {
+                        Text("Delete")
+                    }
+                }
+
+                Button(
+                    onClick = {
+                        val cal = calories.toIntOrNull() ?: 0
+                        val prot = protein.toFloatOrNull() ?: 0f
+                        val carb = carbs.toFloatOrNull() ?: 0f
+                        val ft = fat.toFloatOrNull() ?: 0f
+                        val finalNotes = notes.takeIf { it.isNotBlank() }
+
+                        onSave(name, selectedType, cal, prot, carb, ft, finalNotes, addToGroceryList)
+                    },
+                    enabled = name.isNotBlank()
+                ) {
+                    Text("Save")
+                }
             }
         },
         dismissButton = {

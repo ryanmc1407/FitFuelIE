@@ -2,20 +2,31 @@ package com.example.fitfuelie.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.fitfuelie.data.local.entity.Meal
 import com.example.fitfuelie.data.local.entity.UserProfile
 import com.example.fitfuelie.data.model.DietaryPreference
 import com.example.fitfuelie.data.model.Goal
+import com.example.fitfuelie.data.model.MealType
 import com.example.fitfuelie.data.model.TrainingFrequency
+import com.example.fitfuelie.data.repository.MealRepository
 import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.*
 
-
+/**
+ * OnboardingViewModel
+ * 
+ * Manages the onboarding flow ,collects user info and calculates nutrition targets.
+ * Uses step-by-step flow to gather goal, frequency, weight, and dietary preferences.
+ * Generates sample meals based on selected dietary preference.
+ */
 class OnboardingViewModel(
-    private val userProfileRepository: UserProfileRepository
+    private val userProfileRepository: UserProfileRepository,
+    private val mealRepository: MealRepository
 ) : ViewModel() {
 
     private val _currentStep = MutableStateFlow(0)
@@ -106,6 +117,9 @@ class OnboardingViewModel(
                 )
 
                 userProfileRepository.insertUserProfile(userProfile)
+                
+                // Generate sample meals based on dietary preference
+                generateSampleMeals(dietaryPreference)
             } catch (e: Exception) {
                 _error.value = "Failed to save profile: ${e.localizedMessage ?: "Unknown error"}"
             } finally {
@@ -114,16 +128,272 @@ class OnboardingViewModel(
         }
     }
 
+    /**
+     * Generates sample meals based on the user's dietary preference.
+     * Creates breakfast, lunch, dinner, and snack suggestions.
+     */
+    private suspend fun generateSampleMeals(dietaryPreference: DietaryPreference) {
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.time
+
+        val sampleMeals = when (dietaryPreference) {
+            DietaryPreference.VEGETARIAN -> getVegetarianMeals(today)
+            DietaryPreference.VEGAN -> getVeganMeals(today)
+            DietaryPreference.GLUTEN_FREE -> getGlutenFreeMeals(today)
+            DietaryPreference.KETO -> getKetoMeals(today)
+            DietaryPreference.NO_RESTRICTIONS -> getRegularMeals(today)
+        }
+
+        // Insert all sample meals
+        sampleMeals.forEach { meal ->
+            mealRepository.insertMeal(meal)
+        }
+    }
+
+    /**
+     * Returns vegetarian meal suggestions (no meat, but includes eggs/dairy)
+     */
+    private fun getVegetarianMeals(date: Date): List<Meal> = listOf(
+        Meal(
+            name = "Greek Yogurt with Berries",
+            type = MealType.BREAKFAST,
+            calories = 250,
+            protein = 15f,
+            carbs = 30f,
+            fat = 8f,
+            date = date,
+            notes = "Vegetarian - High protein breakfast"
+        ),
+        Meal(
+            name = "Quinoa Salad with Feta",
+            type = MealType.LUNCH,
+            calories = 450,
+            protein = 18f,
+            carbs = 55f,
+            fat = 15f,
+            date = date,
+            notes = "Vegetarian - Complete protein source"
+        ),
+        Meal(
+            name = "Vegetable Stir Fry with Tofu",
+            type = MealType.DINNER,
+            calories = 380,
+            protein = 22f,
+            carbs = 40f,
+            fat = 12f,
+            date = date,
+            notes = "Vegetarian - Rich in plant protein"
+        ),
+        Meal(
+            name = "Apple with Almond Butter",
+            type = MealType.SNACK,
+            calories = 200,
+            protein = 6f,
+            carbs = 25f,
+            fat = 10f,
+            date = date,
+            notes = "Vegetarian - Healthy snack"
+        )
+    )
+
+    /**
+     * Returns vegan meal suggestions (no animal products)
+     */
+    private fun getVeganMeals(date: Date): List<Meal> = listOf(
+        Meal(
+            name = "Overnight Oats with Fruits",
+            type = MealType.BREAKFAST,
+            calories = 320,
+            protein = 12f,
+            carbs = 55f,
+            fat = 8f,
+            date = date,
+            notes = "Vegan - Plant-based breakfast"
+        ),
+        Meal(
+            name = "Chickpea Curry with Rice",
+            type = MealType.LUNCH,
+            calories = 480,
+            protein = 20f,
+            carbs = 70f,
+            fat = 10f,
+            date = date,
+            notes = "Vegan - High protein legume meal"
+        ),
+        Meal(
+            name = "Lentil Bolognese with Pasta",
+            type = MealType.DINNER,
+            calories = 520,
+            protein = 25f,
+            carbs = 75f,
+            fat = 12f,
+            date = date,
+            notes = "Vegan - Protein-rich dinner"
+        ),
+        Meal(
+            name = "Hummus with Veggie Sticks",
+            type = MealType.SNACK,
+            calories = 180,
+            protein = 8f,
+            carbs = 20f,
+            fat = 8f,
+            date = date,
+            notes = "Vegan - Nutritious snack"
+        )
+    )
+
+    /**
+     * Returns gluten-free meal suggestions
+     */
+    private fun getGlutenFreeMeals(date: Date): List<Meal> = listOf(
+        Meal(
+            name = "Scrambled Eggs with Avocado",
+            type = MealType.BREAKFAST,
+            calories = 350,
+            protein = 18f,
+            carbs = 8f,
+            fat = 28f,
+            date = date,
+            notes = "Gluten-free - High protein breakfast"
+        ),
+        Meal(
+            name = "Grilled Chicken with Sweet Potato",
+            type = MealType.LUNCH,
+            calories = 420,
+            protein = 35f,
+            carbs = 45f,
+            fat = 10f,
+            date = date,
+            notes = "Gluten-free - Balanced meal"
+        ),
+        Meal(
+            name = "Salmon with Quinoa and Vegetables",
+            type = MealType.DINNER,
+            calories = 480,
+            protein = 32f,
+            carbs = 40f,
+            fat = 18f,
+            date = date,
+            notes = "Gluten-free - Omega-3 rich"
+        ),
+        Meal(
+            name = "Mixed Nuts and Seeds",
+            type = MealType.SNACK,
+            calories = 220,
+            protein = 8f,
+            carbs = 10f,
+            fat = 18f,
+            date = date,
+            notes = "Gluten-free - Healthy fats"
+        )
+    )
+
+    /**
+     * Returns keto meal suggestions (low-carb, high-fat)
+     */
+    private fun getKetoMeals(date: Date): List<Meal> = listOf(
+        Meal(
+            name = "Bacon and Eggs",
+            type = MealType.BREAKFAST,
+            calories = 380,
+            protein = 22f,
+            carbs = 2f,
+            fat = 30f,
+            date = date,
+            notes = "Keto - High fat, low carb"
+        ),
+        Meal(
+            name = "Cauliflower Rice with Chicken",
+            type = MealType.LUNCH,
+            calories = 420,
+            protein = 40f,
+            carbs = 8f,
+            fat = 22f,
+            date = date,
+            notes = "Keto - Low carb alternative"
+        ),
+        Meal(
+            name = "Salmon with Asparagus",
+            type = MealType.DINNER,
+            calories = 450,
+            protein = 35f,
+            carbs = 6f,
+            fat = 30f,
+            date = date,
+            notes = "Keto - High fat, high protein"
+        ),
+        Meal(
+            name = "Cheese and Olives",
+            type = MealType.SNACK,
+            calories = 200,
+            protein = 10f,
+            carbs = 3f,
+            fat = 16f,
+            date = date,
+            notes = "Keto - Perfect keto snack"
+        )
+    )
+
+    /**
+     * Returns regular meal suggestions (no restrictions)
+     */
+    private fun getRegularMeals(date: Date): List<Meal> = listOf(
+        Meal(
+            name = "Whole Grain Toast with Eggs",
+            type = MealType.BREAKFAST,
+            calories = 320,
+            protein = 18f,
+            carbs = 35f,
+            fat = 12f,
+            date = date,
+            notes = "Balanced breakfast"
+        ),
+        Meal(
+            name = "Grilled Chicken Wrap",
+            type = MealType.LUNCH,
+            calories = 450,
+            protein = 32f,
+            carbs = 40f,
+            fat = 15f,
+            date = date,
+            notes = "High protein lunch"
+        ),
+        Meal(
+            name = "Beef Stir Fry with Rice",
+            type = MealType.DINNER,
+            calories = 520,
+            protein = 35f,
+            carbs = 55f,
+            fat = 16f,
+            date = date,
+            notes = "Complete dinner"
+        ),
+        Meal(
+            name = "Greek Yogurt with Honey",
+            type = MealType.SNACK,
+            calories = 180,
+            protein = 12f,
+            carbs = 22f,
+            fat = 4f,
+            date = date,
+            notes = "Protein-rich snack"
+        )
+    )
+
     private fun calculateDefaultTargets(
         goal: Goal, 
         trainingFrequency: TrainingFrequency,
         weightKg: Float
     ): Quadruple<Int, Float, Float, Float> {
-        // 1. Estimate BMR (Basal Metabolic Rate) using simplified formula
+        // 1. Estimate BMR (Basal Metabolic Rate)
         // BMR ≈ 22 * weight_in_kg (Rough estimate for average person)
         val bmr = 22 * weightKg
 
-        // 2. Estimate TDEE (Total Daily Energy Expenditure) based on activity
+        // 2. Estimate based on activity
         val activityMultiplier = when (trainingFrequency) {
             TrainingFrequency.TWO_THREE_DAYS -> 1.375f // Lightly active
             TrainingFrequency.FOUR_FIVE_DAYS -> 1.55f  // Moderately active

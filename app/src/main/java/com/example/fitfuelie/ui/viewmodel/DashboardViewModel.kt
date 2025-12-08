@@ -9,7 +9,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
-
+/**
+ * DashboardViewModel
+ * 
+ * Manages data for the dashboard screen, shows today's nutrition and training stats.
+ * Combines data from multiple repositories to create a summary view.
+ */
 class DashboardViewModel(
     private val mealRepository: MealRepository,
     private val trainingRepository: TrainingSessionRepository,

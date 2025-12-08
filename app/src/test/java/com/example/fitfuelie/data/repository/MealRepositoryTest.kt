@@ -162,7 +162,7 @@ class MealRepositoryTest {
         val result = repository.getTotalProteinBetweenDates(startDate, endDate).first()
 
         // Then: Result should match aggregated value
-        assertEquals(150f, result, 0.01f)
+        assertEquals(150f, result ?: 0f, 0.01f)
         verify(mealDao).getTotalProteinBetweenDates(startDate, endDate)
     }
 

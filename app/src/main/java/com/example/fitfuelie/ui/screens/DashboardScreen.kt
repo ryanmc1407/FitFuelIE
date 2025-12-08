@@ -67,7 +67,7 @@ fun DashboardScreen(
     val shakeDetected by sensorViewModel.shakeDetected.collectAsState()
     val sensorsAvailable by sensorViewModel.sensorsAvailable.collectAsState()
     
-    // Handle shake gesture - show snackbar with quick action options
+    // Handle shake gesture, show snackbar with quick action options
     LaunchedEffect(shakeDetected) {
         if (shakeDetected) {
             // In production: Show a dialog or snackbar with quick action options

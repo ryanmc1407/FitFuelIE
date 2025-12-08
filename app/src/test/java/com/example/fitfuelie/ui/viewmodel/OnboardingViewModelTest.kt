@@ -3,6 +3,7 @@ package com.example.fitfuelie.ui.viewmodel
 import com.example.fitfuelie.data.model.DietaryPreference
 import com.example.fitfuelie.data.model.Goal
 import com.example.fitfuelie.data.model.TrainingFrequency
+import com.example.fitfuelie.data.repository.MealRepository
 import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,13 +23,16 @@ class OnboardingViewModelTest {
     @Mock
     private lateinit var userProfileRepository: UserProfileRepository
 
+    @Mock
+    private lateinit var mealRepository: MealRepository
+
     private lateinit var viewModel: OnboardingViewModel
 
     @Before
     fun setup() {
         MockitoAnnotations.openMocks(this)
         Dispatchers.setMain(testDispatcher)
-        viewModel = OnboardingViewModel(userProfileRepository)
+        viewModel = OnboardingViewModel(userProfileRepository, mealRepository)
     }
 
     @After

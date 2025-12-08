@@ -11,49 +11,65 @@ import java.util.concurrent.TimeUnit
 /**
  * FitFuelApplication
  * 
- * Custom Application class for the FitFuel app.
- * Responsible for initializing app-wide components and services:
- * - WorkManager: Schedules and manages background tasks
- * - Periodic workers for nutrition tracking, training reminders, and data cleanup
+ * This is a custom Application class that runs when the app starts.
+ * It's like MainActivity, but for app-wide setup instead of UI setup.
  * 
- * This class is registered in AndroidManifest.xml and created when the app starts.
+ * What does it do?
+ * - Sets up background tasks (workers) that run even when the app is closed
+ * - Initializes services that the whole app needs
+ * 
+ * This class is registered in AndroidManifest.xml , Android knows to create it
+ * when the app launches.
+ * 
+ * Why use Application class?
+ * - onCreate() runs before any Activity is created
+ * - Perfect for setting up things that need to run once for the whole app
+ * - Like scheduling background tasks, initializing analytics, etc.
  */
 class FitFuelApplication : Application() {
 
+    /**
+     * Called when the app is first created (before any Activity)
+     * This is where I set up app-wide services
+     */
     override fun onCreate() {
         super.onCreate()
         
-        // Initialize WorkManager and schedule all periodic tasks
+        // Schedule all background workers
+        // These will run periodically even if the user closes the app
         scheduleBackgroundTasks()
     }
 
     /**
-     * Schedules all periodic background tasks using WorkManager.
+     * Sets up all the background workers using WorkManager
      * 
-     * Three main workers are scheduled:
-     * 1. DailyNutritionSummaryWorker - Runs daily at midnight
-     * 2. TrainingReminderWorker - Runs every 15 minutes during active hours
-     * 3. DataCleanupWorker - Runs weekly for database maintenance
+     * WorkManager is Android's  way to do background work.
+     * it handles battery optimization, network conditions.
      * 
-     * All workers use KEEP policy to preserve existing schedules across app updates.
+     * I schedule 4 different workers:
+     * 1. Daily nutrition summary - calculates daily totals
+     * 2. Training reminders - reminds user about upcoming workouts
+     * 3. Data cleanup - removes old data to save space
+     * 4. Daily reminders - reminds user to log meals
      */
     private fun scheduleBackgroundTasks() {
         val workManager = WorkManager.getInstance(this)
 
         // 1. Daily Nutrition Summary Worker
-        // Runs once per day to calculate previous day's nutrition totals
+        // I want this to run once a day to add up all the calories.
         val dailyNutritionRequest = PeriodicWorkRequestBuilder<DailyNutritionSummaryWorker>(
             repeatInterval = 1,
             repeatIntervalTimeUnit = TimeUnit.DAYS
         )
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiresBatteryNotLow(true) // Only run when battery is not low
+                    .setRequiresBatteryNotLow(true) // I check if the battery is okay first so I don't drain it.
                     .build()
             )
             .build()
 
-        // Enqueue with KEEP policy - won't replace if already scheduled
+        // I use 'enqueueUniquePeriodicWork' to make sure I don't accidentally schedule the same task twice.
+        // 'KEEP' means if it's already there, I keep the old one.
         workManager.enqueueUniquePeriodicWork(
             "daily_nutrition_summary",
             ExistingPeriodicWorkPolicy.KEEP,
@@ -61,7 +77,7 @@ class FitFuelApplication : Application() {
         )
 
         // 2. Training Reminder Worker
-        // Runs every 15 minutes to check for upcoming training sessions
+        // This one checks every 15 minutes to see if you have a workout coming up.
         val trainingReminderRequest = PeriodicWorkRequestBuilder<TrainingReminderWorker>(
             repeatInterval = 15,
             repeatIntervalTimeUnit = TimeUnit.MINUTES
@@ -80,7 +96,7 @@ class FitFuelApplication : Application() {
         )
 
         // 3. Data Cleanup Worker
-        // Runs once per week to clean up old data
+        // This runs once a week to delete old data I don't need anymore.
         val dataCleanupRequest = PeriodicWorkRequestBuilder<DataCleanupWorker>(
             repeatInterval = 7,
             repeatIntervalTimeUnit = TimeUnit.DAYS
@@ -88,7 +104,7 @@ class FitFuelApplication : Application() {
             .setConstraints(
                 Constraints.Builder()
                     .setRequiresBatteryNotLow(true)
-                    .setRequiresDeviceIdle(true) // Only run when device is idle
+                    .setRequiresDeviceIdle(true) // I wait until the user isn't using the phone so I don't slow it down.
                     .build()
             )
             .build()
@@ -100,21 +116,20 @@ class FitFuelApplication : Application() {
         )
 
         // 4. Daily Reminder Worker
-        // Runs daily to remind user to log data
+        // This reminds the user to log their food if they haven't.
         val dailyReminderRequest = PeriodicWorkRequestBuilder<DailyReminderWorker>(
             repeatInterval = 1,
             repeatIntervalTimeUnit = TimeUnit.DAYS
         )
             .setConstraints(
                 Constraints.Builder()
-                    .setRequiresBatteryNotLow(true) // Don't run if battery is low
+                    .setRequiresBatteryNotLow(true) // Save battery!
                     .build()
             )
-            .setInitialDelay(12, TimeUnit.HOURS) // Start around noon/evening if app opened in morning
+            .setInitialDelay(12, TimeUnit.HOURS) // Wait 12 hours so the notification doesn't pop up in the middle of the night.
             .build()
 
-        // I'm using KEEP here so that if the work is already scheduled, it doesn't get replaced.
-        // This prevents duplicate tasks from piling up.
+        // Again, using KEEP to avoid duplicates.
         workManager.enqueueUniquePeriodicWork(
             "daily_reminder",
             ExistingPeriodicWorkPolicy.KEEP,
