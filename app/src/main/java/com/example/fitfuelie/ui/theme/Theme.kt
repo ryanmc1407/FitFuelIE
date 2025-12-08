@@ -12,6 +12,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+/**
+ * Theme.kt
+ * 
+ * This file defines the app's color scheme and theme.
+ * Material Design 3 uses a color system with semantic names like "primary" and "secondary".
+ * 
+ * Color roles:
+ * - primary: Main brand color (I use green for fitness/health)
+ * - secondary: Accent color (I use blue)
+ * - tertiary: Another accent color (I use orange)
+ * - error: For error messages and warnings (red)
+ * - background: Main background color
+ * - surface: Color for cards and surfaces
+ * - onPrimary/onSecondary/etc.: Text color that goes ON TOP of primary/secondary/etc.
+ * 
+ * I define two color schemes:
+ * 1. Light theme - for when the user's phone is in light mode
+ * 2. Dark theme - for when the user's phone is in dark mode
+ * 
+ * The app automatically switches between them based on system settings!
+ */
+
+/**
+ * Light color scheme - used when the phone is in light mode
+ * Colors are brighter and have more contrast
+ */
 private val FitFuelLightColorScheme = lightColorScheme(
     primary = Color(0xFF4CAF50),
     onPrimary = Color(0xFFFFFFFF),
@@ -38,6 +64,10 @@ private val FitFuelLightColorScheme = lightColorScheme(
     outline = Color(0xFF79747E)
 )
 
+/**
+ * Dark color scheme - used when the phone is in dark mode
+ * Colors are darker and easier on the eyes in low light
+ */
 private val FitFuelDarkColorScheme = darkColorScheme(
     primary = Color(0xFF81C784),
     onPrimary = Color(0xFF1B5E20),
@@ -64,26 +94,41 @@ private val FitFuelDarkColorScheme = darkColorScheme(
     outline = Color(0xFF938F99)
 )
 
+/**
+ * FitFuelIETheme
+ * 
+ * This is the main theme composable that wraps my entire app.
+ * It provides colors and typography to all child composables.
+ * 
+ * @param darkTheme Whether to use dark mode (defaults to system setting)
+ * @param dynamicColor Whether to use Android 12+ dynamic colors (matches wallpaper)
+ * @param content The UI content that will use this theme
+ * 
+ *
+ */
 @Composable
 fun FitFuelIETheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = false,
-    content: @Composable () -> Unit
+    darkTheme: Boolean = isSystemInDarkTheme(),  // Automatically detects if phone is in dark mode
+    dynamicColor: Boolean = false,  // Set to true to enable dynamic colors (matches wallpaper)
+    content: @Composable () -> Unit  // All the UI content that uses this theme
 ) {
+    // Pick which color scheme to use
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
+            // Use  colors that match the wallpaper
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
+        // Otherwise use  custom color schemes
         darkTheme -> FitFuelDarkColorScheme
         else -> FitFuelLightColorScheme
     }
 
+    // Apply the theme to all child composables
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
+        colorScheme = colorScheme,  //  colors
+        typography = Typography,     //  text styles
+        content = content            // The UI that will use this theme
     )
 }

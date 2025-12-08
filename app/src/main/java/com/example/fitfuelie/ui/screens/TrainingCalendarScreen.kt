@@ -330,7 +330,7 @@ private fun TrainingSessionCard(
 }
 
 // This dialog is used for both adding AND editing sessions.
-// If 'session' is null, we know we are adding a new one. If it's not null, we are editing.
+// If 'session' is null, I know I'm adding a new one. If it's not null, I'm editing.
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddEditTrainingSessionDialog(
@@ -394,7 +394,7 @@ private fun AddEditTrainingSessionDialog(
                     }
                 }
 
-                // Intensity selection (Row of Chips)
+                // Intensity selection
                 Column {
                     Text("Intensity", style = MaterialTheme.typography.bodyMedium)
                     Spacer(modifier = Modifier.height(8.dp))

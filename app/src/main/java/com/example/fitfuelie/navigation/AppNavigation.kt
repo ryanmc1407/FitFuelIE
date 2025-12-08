@@ -14,18 +14,29 @@ import com.example.fitfuelie.ui.viewmodel.*
 /**
  * AppNavigation
  * 
- * Main navigation component for the FitFuel app.
- * Sets up navigation graph with all app screens and their ViewModels.
+ * This is the main navigation component for my app. It sets up all the screens
+ * and connects them together so users can move between different parts of the app.
  * 
- * Screens:
+ * How navigation works:
+ * - NavHost is like a container that holds one screen at a time
+ *  NavHost swaps out the current screen for a new one
+ * - Each screen is defined with a 'composable' function
+ * 
+ *  ViewModels here?
+ * - Each screen needs its own ViewModel instance
+ * - ViewModels are created when the screen is first shown
+ * - I pass repositories from AppContainer so ViewModels can access data
+ * 
+ * Screens in my app:
  * - Dashboard: Overview of nutrition, training, and steps
  * - MealPlanner: Plan and track meals
  * - TrainingCalendar: Schedule and track workouts
  * - GroceryList: Manage shopping list
  * - Profile: User settings and preferences
  * 
- * @param appContainer Dependency injection container providing repositories
- * @param modifier Optional modifier for the NavHost
+ * @param appContainer Dependency injection container, provides repositories to ViewModels
+ * @param navController Controls navigation, tells NavHost which screen to show
+ * @param modifier Optional styling modifier for the NavHost
  */
 
 @Composable

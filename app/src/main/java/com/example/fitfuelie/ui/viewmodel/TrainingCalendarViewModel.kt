@@ -10,9 +10,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
-
-
-
+/**
+ * TrainingCalendarViewModel
+ * 
+ * Manages training sessions and workout calendar. Users can add workouts,
+ * mark them as complete, and generate workouts based on their goals.
+ */
 class TrainingCalendarViewModel(
     private val trainingRepository: TrainingSessionRepository,
     private val userProfileRepository: com.example.fitfuelie.data.repository.UserProfileRepository

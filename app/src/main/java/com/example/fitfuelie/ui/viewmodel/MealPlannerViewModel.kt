@@ -9,7 +9,12 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.util.*
 
-
+/**
+ * MealPlannerViewModel
+ * 
+ * Manages meal planning and tracking. Users can add, edit, and delete meals.
+ * Also calculates daily nutrition totals for the selected date.
+ */
 class MealPlannerViewModel(
     private val mealRepository: MealRepository,
     private val groceryItemRepository: com.example.fitfuelie.data.repository.GroceryItemRepository

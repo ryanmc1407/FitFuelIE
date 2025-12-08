@@ -6,7 +6,27 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
-// Set of Material typography styles to start with
+/**
+ * Typography
+ * 
+ * This defines all the text styles used in our app.
+ * Material Design 3 has predefined text styles for different purposes:
+ * 
+ * - displayLarge/Medium/Small: For huge headlines (like app title)
+ * - headlineLarge/Medium/Small: For section headers
+ * - titleLarge/Medium/Small: For card titles and important text
+ * - bodyLarge/Medium/Small: For regular paragraph text
+ * - labelLarge/Medium/Small: For buttons and labels
+ * 
+ * Each style has:
+ * - fontFamily: Which font to use (I use the default system font)
+ * - fontWeight: How bold the text is (Normal, SemiBold, Bold)
+ * - fontSize: Size in sp (scaled pixels - adjusts for accessibility)
+ * - lineHeight: Space between lines
+ * - letterSpacing: Space between letters
+ * 
+ * I can use these styles in my Compose UI like: Text("Hello", style = MaterialTheme.typography.headlineLarge)
+ */
 val Typography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.Default,

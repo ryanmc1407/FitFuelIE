@@ -58,7 +58,7 @@ class SensorViewModel(context: Context) : ViewModel() {
      * Collects step count data from the step counter sensor.
      * 
      * The step counter returns total steps since device reboot.
-     * We calculate daily steps by subtracting the baseline value
+     * I calculate daily steps by subtracting the baseline value
      * (steps at the start of the day).
      */
     private fun collectStepCount() {

@@ -9,6 +9,12 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.fitfuelie.navigation.Screen
 
+/**
+ * BottomNavigationBar
+ * 
+ * Bottom navigation bar for switching between main screens.
+ * Highlights the current screen and handles navigation.
+ */
 @Composable
 fun BottomNavigationBar(
     navController: NavHostController,

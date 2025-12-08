@@ -177,7 +177,7 @@ private fun DatePickerCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Simple date navigation (can be enhanced with a proper date picker)
+            //  date navigation
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)

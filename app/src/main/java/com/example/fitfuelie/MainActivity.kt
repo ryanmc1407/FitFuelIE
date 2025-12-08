@@ -14,33 +14,33 @@ import com.example.fitfuelie.ui.viewmodel.MainViewModel
 
 import com.example.fitfuelie.ui.viewmodel.OnboardingViewModel
 
-/**
- * MainActivity
- * 
- * Main entry point for the FitFuel app.
- * Responsible for:
- * - Initializing the app container (dependency injection)
- * - Setting up the app theme
- * - Determining whether to show onboarding or main app
- * 
- * The activity uses edge-to-edge display for a modern, immersive UI.
- */
+
 class MainActivity : ComponentActivity() {
 
-    // App-wide dependency injection container
+    /**
+     * App container for dependency injection
+     * 
+     * I use 'lateinit' because:
+     * - I can't create it in the constructor (I need the Context)
+     * - I promise to initialize it in onCreate() before using it
+     * - The compiler trusts me, but will crash if I forget!
+     */
     private lateinit var appContainer: AppContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
-        // Initialize dependency injection container
+        // Here I initialize the container so I can use it later.
         appContainer = AppContainer(this)
         
-        // Enable edge-to-edge display (content extends behind system bars)
+        // This makes the app go all the way to the edge of the screen, behind the status bar.
+        // It looks more modern this way.
         enableEdgeToEdge()
 
+        // This is where I start drawing the UI with Jetpack Compose.
         setContent {
             FitFuelIETheme {
+                // I pass the container down so other parts of the app can use it.
                 FitFuelApp(appContainer)
             }
         }
@@ -49,23 +49,32 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun FitFuelApp(appContainer: AppContainer) {
-    // Create MainViewModel to check if user has completed onboarding
+    // I need the MainViewModel to check if the user has finished the onboarding steps.
+    // 'viewModel' is a helper function to get the ViewModel.
     val mainViewModel: MainViewModel = viewModel {
         MainViewModel(appContainer.userProfileRepository)
     }
 
-    // Observe onboarding status from database
+    // I use 'collectAsState' to watch the 'shouldShowOnboarding' value.
+    // If it changes, the UI will automatically update!
     val shouldShowOnboarding by mainViewModel.shouldShowOnboarding.collectAsState()
 
-    // Show onboarding for first-time users, main app for returning users
+    // If the user is new, I show them the onboarding screen.
+    // If they've been here before, I show the main screen.
     if (shouldShowOnboarding) {
         val onboardingViewModel: OnboardingViewModel = viewModel {
-            OnboardingViewModel(appContainer.userProfileRepository)
+            OnboardingViewModel(
+                appContainer.userProfileRepository,
+                appContainer.mealRepository
+            )
         }
 
         OnboardingScreen(
             viewModel = onboardingViewModel,
-            onOnboardingComplete = { mainViewModel.markOnboardingCompleted() }
+            onOnboardingComplete = { 
+                // When they finish onboarding, I tell the ViewModel so it can save that info.
+                mainViewModel.markOnboardingCompleted() 
+            }
         )
     } else {
         MainScreen(appContainer)

@@ -18,7 +18,7 @@ import androidx.compose.ui.unit.dp
  * Composable widget that displays the user's daily step count with
  * an animated progress indicator.
  * 
- * Features:
+ *
  * - Circular progress indicator showing progress toward daily goal
  * - Animated step count number
  * - Walking icon with pulse animation

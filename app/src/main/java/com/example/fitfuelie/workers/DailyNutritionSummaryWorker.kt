@@ -48,7 +48,7 @@ class DailyNutritionSummaryWorker(
             
             // Fetch nutrition data for yesterday
             // Note: In a real implementation, you would collect these flows
-            // For now, we're demonstrating the structure
+            // For now, I'm demonstrating the structure
             
             // Log the summary (in production, send notification)
             android.util.Log.d("DailyNutritionWorker", "Daily nutrition summary calculated for ${yesterday}")

@@ -10,7 +10,11 @@ import com.example.fitfuelie.data.repository.UserProfileRepository
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-
+/**
+ * ProfileViewModel
+ * 
+ * Manages user profile editing. Users can update their goals, preferences, and nutrition targets.
+ */
 class ProfileViewModel(
     private val userProfileRepository: UserProfileRepository
 ) : ViewModel() {
