@@ -44,7 +44,7 @@ class SensorViewModel(context: Context) : ViewModel() {
     val shakeDetected: StateFlow<Boolean> = _shakeDetected.asStateFlow()
     val sensorsAvailable: StateFlow<SensorAvailability> = _sensorsAvailable.asStateFlow()
 
-    // Baseline step count (steps at start of day)
+    // Baseline step count
     private var stepBaseline: Int? = null
 
     init {
@@ -69,7 +69,7 @@ class SensorViewModel(context: Context) : ViewModel() {
                     stepBaseline = totalSteps
                 }
 
-                // Calculate daily steps (total - baseline)
+                // Calculate daily steps
                 val dailyStepCount = totalSteps - (stepBaseline ?: 0)
                 _dailySteps.value = dailyStepCount.coerceAtLeast(0)
             }
@@ -89,7 +89,7 @@ class SensorViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             sensorManager.getAccelerometerFlow()
                 ?.map { magnitude ->
-                    // Categorize activity level based on magnitude
+                    //  level based on magnitude
                     when {
                         magnitude < 10f -> ActivityLevel.SEDENTARY
                         magnitude < 13f -> ActivityLevel.LIGHT
@@ -118,7 +118,7 @@ class SensorViewModel(context: Context) : ViewModel() {
                 if (shakeDetected) {
                     _shakeDetected.value = true
                     
-                    // Auto-reset shake detection after a short delay
+
                     kotlinx.coroutines.delay(500)
                     _shakeDetected.value = false
                 }
@@ -163,7 +163,7 @@ data class SensorAvailability(
  */
 enum class ActivityLevel {
     SEDENTARY,  // Minimal movement
-    LIGHT,      // Light activity (walking slowly)
-    MODERATE,   // Moderate activity (brisk walking)
-    VIGOROUS    // High intensity activity (running, jumping)
+    LIGHT,      // Light activity
+    MODERATE,   // Moderate activity
+    VIGOROUS    // High intensity activity
 }

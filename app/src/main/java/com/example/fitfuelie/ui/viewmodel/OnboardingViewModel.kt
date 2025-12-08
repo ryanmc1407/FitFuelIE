@@ -389,11 +389,11 @@ class OnboardingViewModel(
         trainingFrequency: TrainingFrequency,
         weightKg: Float
     ): Quadruple<Int, Float, Float, Float> {
-        // 1. Estimate BMR (Basal Metabolic Rate)
+        //  Estimate BMR
         // BMR ≈ 22 * weight_in_kg (Rough estimate for average person)
         val bmr = 22 * weightKg
 
-        // 2. Estimate based on activity
+        //  Estimate based on activity
         val activityMultiplier = when (trainingFrequency) {
             TrainingFrequency.TWO_THREE_DAYS -> 1.375f // Lightly active
             TrainingFrequency.FOUR_FIVE_DAYS -> 1.55f  // Moderately active
@@ -402,7 +402,7 @@ class OnboardingViewModel(
         
         var targetCalories = (bmr * activityMultiplier).toInt()
 
-        // 3. Adjust for Goal
+        //  Adjust for Goal
         when (goal) {
             Goal.LOSE_WEIGHT -> targetCalories -= 500
             Goal.BUILD_MUSCLE -> targetCalories += 300
@@ -413,7 +413,7 @@ class OnboardingViewModel(
         // Ensure calories don't go too low
         if (targetCalories < 1200) targetCalories = 1200
 
-        // 4. Calculate Macros
+        //  Calculate Macros
         // Protein: 2g per kg of bodyweight (good for active individuals)
         val proteinGrams = (2.0f * weightKg).coerceAtLeast(50f) // Minimum 50g
         
